@@ -1,4 +1,4 @@
-package notification
+package notify
 
 import (
 	"errors"
@@ -37,5 +37,5 @@ type Error struct {
 func (e *Error) Error() string {
 
 	// Usually return will have a newline character
-	return "Notification: " + " " + strings.TrimSpace(e.Return) + ": " + e.Err.Error()
+	return "Notify: " + " " + strings.TrimSpace(e.Return) + ": " + e.Err.Error()
 }

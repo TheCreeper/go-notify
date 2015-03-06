@@ -1,4 +1,4 @@
-package notification
+package notify
 
 import (
 	"os/exec"
@@ -32,17 +32,17 @@ func init() {
 	}
 }
 
-func Push(title, body string) (err error) {
+func Send(title, body string) (err error) {
 
 	m := &Message{
 
 		Title: title,
 		Body:  body,
 	}
-	return m.Push()
+	return m.Send()
 }
 
-func (m *Message) Push() (err error) {
+func (m *Message) Send() (err error) {
 
 	var args []string
 
