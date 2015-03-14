@@ -1,41 +1,28 @@
 package notify
 
-import (
-	"errors"
-	"strings"
-)
+type Notification struct {
 
-type Message struct {
-	Title      string
-	Body       string
-	Icon       string
-	Urgency    string
-	ExpireTime int
-	Category   string
-	Hint       string
-	Sound      string
-	SoundPipe  []byte
-}
+	// The optional name of the application sending the notification. Can be blank.
+	AppName string
 
-const (
-	LowPriority      = "low"
-	NormalPriority   = "normal"
-	CriticalPriority = "critical"
-)
+	// The optional notification ID that this notification replaces.
+	ReplacesID uint32
 
-// Errors
-var (
-	ErrTitleMsg       = errors.New("A title or message must be specified.")
-	ErrNoSoundBackEnd = errors.New("No sound backend could be found.")
-)
+	// The optional program icon of the calling application.
+	AppIcon string
 
-type Error struct {
-	Return string
-	Err    error
-}
+	// The summary text briefly describing the notification.
+	Summary string
 
-func (e *Error) Error() string {
+	// The optional detailed body text.
+	Body string
 
-	// Usually return will have a newline character
-	return "Notify: " + " " + strings.TrimSpace(e.Return) + ": " + e.Err.Error()
+	// The actions send a request message back to the notification client when invoked.
+	Actions []string
+
+	// Optional hints that can be passed to the server from the client program.
+	Hints map[string]string
+
+	// The timeout time in milliseconds since the display of the notification at which the notification should automatically close.
+	Timeout int32
 }

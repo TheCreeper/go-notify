@@ -1,144 +1,110 @@
 package notify
 
 import (
-	"os/exec"
-	"path/filepath"
+	"errors"
+
+	"github.com/godbus/dbus"
 )
 
-// Some vars
-var (
-	// The sound backend to use
-	SoundBackEnd string
+// Returns the capabilities of the notification server as a string array
+func GetCapabilities() (c []string, err error) {
 
-	// Array of possible sound backends to use
-	SoundBackEnds []string = []string{
-
-		"ogg123",
-		"paplay",
-		//"aplay",
-	}
-)
-
-func init() {
-
-	// Look for a suitable sound backend
-	for _, v := range SoundBackEnds {
-
-		path, _ := exec.LookPath(v)
-		if len(path) > 1 {
-
-			SoundBackEnd = v
-		}
-	}
-}
-
-func Send(title, body string) (err error) {
-
-	m := &Message{
-
-		Title: title,
-		Body:  body,
-	}
-	return m.Send()
-}
-
-func (m *Message) Send() (err error) {
-
-	var args []string
-
-	if (len(m.Title) == 0) && (len(m.Body) == 0) {
-
-		return ErrTitleMsg
-	}
-
-	if len(m.Title) > 0 {
-
-		args = append(args, m.Title)
-	}
-
-	if len(m.Body) > 0 {
-
-		args = append(args, m.Body)
-	}
-
-	if len(m.Icon) > 0 {
-
-		args = append(args, "--icon="+filepath.Clean(m.Icon))
-	}
-
-	if len(m.Urgency) > 0 {
-
-		args = append(args, "--urgency="+m.Urgency)
-	}
-
-	if m.ExpireTime > 0 {
-
-		args = append(args, "--expire-time="+string(m.ExpireTime))
-	}
-
-	if len(m.Category) > 0 {
-
-		args = append(args, "--category="+m.Category)
-	}
-
-	if len(m.Hint) > 0 {
-
-		args = append(args, "--hint="+m.Hint)
-	}
-
-	out, err := exec.Command("notify-send", args...).CombinedOutput()
+	connection, err := dbus.SessionBus()
 	if err != nil {
 
-		return &Error{Return: string(out), Err: err}
+		return
 	}
 
-	if (len(m.Sound) > 0) || (len(m.SoundPipe) > 0) {
+	call := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications").Call("org.freedesktop.Notifications.GetCapabilities", 0)
 
-		return m.PlaySound()
+	if call.Err != nil {
+
+		return nil, call.Err
+	}
+
+	if err := call.Store(&c); err != nil {
+
+		return nil, err
 	}
 
 	return
 }
 
-func (m *Message) PlaySound() (err error) {
+// Create a new notification object with some basic information
+func NewNotification(summary, body string) (n *Notification, err error) {
 
-	if len(SoundBackEnd) == 0 {
+	if len(summary) == 0 {
 
-		return ErrNoSoundBackEnd
+		return nil, errors.New("The Notification must contain a summary")
 	}
 
-	if len(m.Sound) > 0 {
+	n = &Notification{
 
-		out, err := exec.Command(SoundBackEnd, m.Sound).CombinedOutput()
-		if err != nil {
+		Summary: summary,
+		Body:    body,
+		Timeout: -1,
+	}
+	return
+}
 
-			return &Error{Return: string(out), Err: err}
+// Send the notification
+func (n *Notification) Send() (id uint32, err error) {
+
+	hints := map[string]dbus.Variant{}
+	if len(n.Hints) != 0 {
+
+		for k, v := range n.Hints {
+
+			hints[k] = dbus.MakeVariant(v)
 		}
+	}
 
-	} else if len(m.SoundPipe) > 0 {
+	connection, err := dbus.SessionBus()
+	if err != nil {
 
-		cmd := exec.Command(SoundBackEnd, "-")
+		return
+	}
+	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
 
-		stdin, err := cmd.StdinPipe()
-		if err != nil {
+	call := obj.Call(
+		"org.freedesktop.Notifications.Notify",
+		0,
+		n.AppName,
+		n.ReplacesID,
+		n.AppIcon,
+		n.Summary,
+		n.Body,
+		n.Actions,
+		hints,
+		n.Timeout)
 
-			return err
-		}
+	if call.Err != nil {
 
-		if _, err = stdin.Write(m.SoundPipe); err != nil {
+		return 0, call.Err
+	}
 
-			return err
-		}
+	if err := call.Store(&id); err != nil {
 
-		if err = stdin.Close(); err != nil {
+		return 0, err
+	}
 
-			return err
-		}
+	return
+}
 
-		if err := cmd.Run(); err != nil {
+// Closes the notification if it exists using its id
+func CloseNotification(id uint32) (err error) {
 
-			return err
-		}
+	connection, err := dbus.SessionBus()
+	if err != nil {
+
+		return
+	}
+
+	call := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications").Call("org.freedesktop.Notifications.GetCapabilities", 0, id)
+
+	if call.Err != nil {
+
+		return call.Err
 	}
 
 	return
