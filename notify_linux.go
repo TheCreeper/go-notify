@@ -6,25 +6,149 @@ import (
 	"github.com/godbus/dbus"
 )
 
+// Categories
+const (
+	Device              = "device"
+	DeviceAdded         = "device.added"
+	DeviceError         = "device.error"
+	DeviceRemoved       = "device.removed"
+	Email               = "email"
+	EmailArrived        = "email.arrived"
+	EmailBounced        = "email.bounced"
+	Im                  = "im"
+	ImError             = "im.error"
+	ImReceived          = "im.received"
+	Network             = "network"
+	NetworkConnected    = "network.connected"
+	NetworkDisconnected = "network.disconnected"
+	NetworkError        = "network.error"
+	Presence            = "presence"
+	PresenceOffline     = "presence.offline"
+	PresenceOnline      = "presence.online"
+	Transfer            = "transfer"
+	TransferComplete    = "transfer.complete"
+	TransferError       = "transfer.error"
+)
+
+// Urgency Levels
+const (
+	Low      = 0
+	Normal   = 1
+	Critical = 2
+)
+
+// Capabilities
+const (
+	ActionIcons    = "action-icons"
+	Actions        = "actions"
+	Body           = "body"
+	BodyHyperlinks = "body-hyperlinks"
+	BodyImages     = "body-images"
+	BodyMarkup     = "body-markup"
+	IconMulti      = "icon-multi"
+	IconStatic     = "icon-static"
+	Persistence    = "persistence"
+	Sound          = "sound"
+)
+
+type Capabilities struct {
+	ActionIcons    bool
+	Actions        bool
+	Body           bool
+	BodyHyperlinks bool
+	BodyImages     bool
+	BodyMarkup     bool
+	IconMulti      bool
+	IconStatic     bool
+	Persistence    bool
+	Sound          bool
+}
+
 // Returns the capabilities of the notification server as a string array
-func GetCapabilities() (c []string, err error) {
+func GetCapabilities() (c *Capabilities, err error) {
 
 	connection, err := dbus.SessionBus()
 	if err != nil {
 
 		return
 	}
+	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
 
-	call := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications").Call("org.freedesktop.Notifications.GetCapabilities", 0)
-
+	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0)
 	if call.Err != nil {
 
 		return nil, call.Err
 	}
 
-	if err := call.Store(&c); err != nil {
+	c = &Capabilities{}
+	s := []string{}
+
+	if err := call.Store(&s); err != nil {
 
 		return nil, err
+	}
+
+	for _, v := range s {
+
+		if v == ActionIcons {
+
+			c.ActionIcons = true
+			continue
+		}
+
+		if v == Actions {
+
+			c.Actions = true
+			continue
+		}
+
+		if v == Body {
+
+			c.Body = true
+			continue
+		}
+
+		if v == BodyHyperlinks {
+
+			c.BodyHyperlinks = true
+			continue
+		}
+
+		if v == BodyImages {
+
+			c.BodyImages = true
+			continue
+		}
+
+		if v == BodyMarkup {
+
+			c.BodyMarkup = true
+			continue
+		}
+
+		if v == IconMulti {
+
+			c.IconMulti = true
+			continue
+		}
+
+		if v == IconStatic {
+
+			c.IconStatic = true
+			continue
+		}
+
+		if v == Persistence {
+
+			c.Persistence = true
+			continue
+		}
+
+		if v == Sound {
+
+			c.Sound = true
+			continue
+		}
 	}
 
 	return
@@ -99,12 +223,44 @@ func CloseNotification(id uint32) (err error) {
 
 		return
 	}
+	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
 
-	call := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications").Call("org.freedesktop.Notifications.GetCapabilities", 0, id)
-
+	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0, id)
 	if call.Err != nil {
 
 		return call.Err
+	}
+
+	return
+}
+
+type ServerInformation struct {
+	Name        string
+	Vendor      string
+	Version     string
+	SpecVersion string
+}
+
+// Gets information about the notification server
+func GetServerInformation() (i *ServerInformation, err error) {
+
+	connection, err := dbus.SessionBus()
+	if err != nil {
+
+		return
+	}
+	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+
+	call := obj.Call("org.freedesktop.Notifications.GetServerInformation", 0)
+	if call.Err != nil {
+
+		return nil, call.Err
+	}
+
+	i = &ServerInformation{}
+	if err := call.Store(&i.Name, i.Vendor, i.Version, i.SpecVersion); err != nil {
+
+		return nil, err
 	}
 
 	return
