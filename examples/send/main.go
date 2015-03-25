@@ -8,13 +8,13 @@ import (
 
 func main() {
 
-	n, err := notify.NewNotification("Test Notification", "This is a test notification")
+	ntf, err := notify.NewNotification("Test Notification", "This is a test notification")
 	if err != nil {
 
 		log.Fatal(err)
 	}
 
-	if _, err := n.Send(); err != nil {
+	if _, err := ntf.Send(); err != nil {
 
 		log.Fatal(err)
 	}

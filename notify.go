@@ -245,7 +245,7 @@ func NewNotification(summary, body string) (n *Notification, err error) {
 }
 
 // Send the notification
-func (n *Notification) Send() (id uint32, err error) {
+func (n *Notification) Show() (id uint32, err error) {
 
 	hints := map[string]dbus.Variant{}
 	if len(n.Hints) != 0 {
