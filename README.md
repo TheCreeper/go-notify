@@ -3,7 +3,7 @@ go-notify
 
 [![go-notify](https://godoc.org/github.com/TheCreeper/go-notify?status.png)](http://godoc.org/github.com/TheCreeper/go-notify)
 
-This is a golang library that provides an implementation of the [freedesktop notification spec](https://developer.gnome.org/notification-spec/) using the DBUS api.
+This is a golang library that provides an implementation of the [Freedesktop Notifications Specification](https://developer.gnome.org/notification-spec/) using the DBUS api.
 
 ## Example
 
