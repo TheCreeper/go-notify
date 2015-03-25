@@ -7,7 +7,7 @@ import (
 
 func TestNotificationNew(t *testing.T) {
 
-	ntf, err := NotificationNew("Test Notification", "This is a test notification")
+	ntf, err := NewNotification("Test Notification", "This is a test notification")
 	if err != nil {
 
 		log.Fatal(err)
