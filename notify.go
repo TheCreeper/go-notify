@@ -192,7 +192,7 @@ func GetServerInformation() (i *ServerInformation, err error) {
 	}
 
 	i = &ServerInformation{}
-	if err := call.Store(&i.Name, i.Vendor, i.Version, i.SpecVersion); err != nil {
+	if err := call.Store(&i.Name, &i.Vendor, &i.Version, &i.SpecVersion); err != nil {
 
 		return nil, err
 	}
@@ -297,7 +297,7 @@ func CloseNotification(id uint32) (err error) {
 	}
 	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
 
-	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0, id)
+	call := obj.Call("org.freedesktop.Notifications.CloseNotification", 0, id)
 	if call.Err != nil {
 
 		return call.Err
