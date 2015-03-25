@@ -228,7 +228,7 @@ type Notification struct {
 }
 
 // Create a new notification object with some basic information
-func NewNotification(summary, body string) (n *Notification, err error) {
+func NotificationNew(summary, body string) (n *Notification, err error) {
 
 	if len(summary) == 0 {
 
