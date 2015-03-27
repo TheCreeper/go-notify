@@ -96,64 +96,37 @@ func GetCapabilities() (c *Capabilities, err error) {
 
 	for _, v := range s {
 
-		if v == ActionIcons {
-
+		switch v {
+		case ActionIcons:
 			c.ActionIcons = true
-			continue
-		}
-
-		if v == Actions {
-
+			break
+		case Actions:
 			c.Actions = true
-			continue
-		}
-
-		if v == Body {
-
+			break
+		case Body:
 			c.Body = true
-			continue
-		}
-
-		if v == BodyHyperlinks {
-
+			break
+		case BodyHyperlinks:
 			c.BodyHyperlinks = true
-			continue
-		}
-
-		if v == BodyImages {
-
+			break
+		case BodyImages:
 			c.BodyImages = true
-			continue
-		}
-
-		if v == BodyMarkup {
-
+			break
+		case BodyMarkup:
 			c.BodyMarkup = true
-			continue
-		}
-
-		if v == IconMulti {
-
+			break
+		case IconMulti:
 			c.IconMulti = true
-			continue
-		}
-
-		if v == IconStatic {
-
+			break
+		case IconStatic:
 			c.IconStatic = true
-			continue
-		}
-
-		if v == Persistence {
-
+			break
+		case Persistence:
 			c.Persistence = true
-			continue
-		}
-
-		if v == Sound {
-
+			break
+		case Sound:
 			c.Sound = true
-			continue
+			break
 		}
 	}
 
