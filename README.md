@@ -24,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := ntf.Send(); err != nil {
+	if _, err := ntf.Show(); err != nil {
 
 		log.Fatal(err)
 	}
