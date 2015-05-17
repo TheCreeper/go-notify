@@ -1,3 +1,5 @@
+// Package notify provides an implementation of the Freedesktop Notifications Specification
+// using the DBus API.
 package notify
 
 import (
@@ -57,6 +59,7 @@ const (
 	Sound          = "sound"
 )
 
+// Capabilities represents the functions available on the notification server.
 type Capabilities struct {
 	ActionIcons    bool
 	Actions        bool
@@ -70,7 +73,7 @@ type Capabilities struct {
 	Sound          bool
 }
 
-// Returns the capabilities of the notification server
+// GetCapabilities returns the capabilities of the notification server.
 func GetCapabilities() (c *Capabilities, err error) {
 
 	connection, err := dbus.SessionBus()
@@ -133,6 +136,7 @@ func GetCapabilities() (c *Capabilities, err error) {
 	return
 }
 
+// ServerInformation object containing information about the notification server.
 type ServerInformation struct {
 
 	// The name of the notification server daemon
@@ -148,7 +152,8 @@ type ServerInformation struct {
 	SpecVersion string
 }
 
-// Gets information about the notification server
+// GetServerInformation returns information about the notification server such as its name
+// and version.
 func GetServerInformation() (i *ServerInformation, err error) {
 
 	connection, err := dbus.SessionBus()
@@ -173,6 +178,8 @@ func GetServerInformation() (i *ServerInformation, err error) {
 	return
 }
 
+// Notification object containing information about the notification such as its icon path and
+// sound to be played via Hints.
 type Notification struct {
 
 	// The optional name of the application sending the notification. Can be blank.
@@ -196,11 +203,12 @@ type Notification struct {
 	// Optional hints that can be passed to the server from the client program.
 	Hints map[string]string
 
-	// The timeout time in milliseconds since the display of the notification at which the notification should automatically close.
+	// The timeout time in milliseconds since the display of the notification at which
+	// the notification should automatically close.
 	Timeout int32
 }
 
-// Create a new notification object with some basic information
+// NewNotification creates a new notification object with some basic information.
 func NewNotification(summary, body string) (n *Notification, err error) {
 
 	if len(summary) == 0 {
@@ -217,7 +225,7 @@ func NewNotification(summary, body string) (n *Notification, err error) {
 	return
 }
 
-// Send the notification
+// Show sends the information in the notification object to the server to be displayed.
 func (n *Notification) Show() (id uint32, err error) {
 
 	hints := map[string]dbus.Variant{}
@@ -260,7 +268,7 @@ func (n *Notification) Show() (id uint32, err error) {
 	return
 }
 
-// Closes the notification if it exists using its id
+// CloseNotification closes the notification if it exists using its id.
 func CloseNotification(id uint32) (err error) {
 
 	connection, err := dbus.SessionBus()
