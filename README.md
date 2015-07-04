@@ -47,10 +47,3 @@ if _, err := ntf.Show(); err != nil {
 	return
 }
 ```
-
-Close a Notification
-```Go
-if err = notify.CloseNotification(notification_id); err != nil {
-	return
-}
-```
