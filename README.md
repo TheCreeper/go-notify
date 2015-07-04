@@ -16,7 +16,7 @@ if _, err := ntf.Show(); err != nil {
 }
 ```
 
-Display a Notification with Icon
+Display a Notification with Icon. Consult the [Icon Naming Specification](http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html).
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 //ntf.AppIcon = "/usr/share/icons/gnome/scalable/devices/network-wireless-symbolic.svg"
