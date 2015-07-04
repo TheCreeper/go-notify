@@ -5,28 +5,53 @@ go-notify
 
 Package notify provides an implementation of the [Freedesktop Notifications Specification](https://developer.gnome.org/notification-spec/) using the DBus API.
 
-## Example
+## Examples
 
+Display Simple Notification
+```Go
+ntf := notify.NewNotification("Test Notification", "Just a test")
+
+if _, err := ntf.Show(); err != nil {
+	return
+}
 ```
-package main
 
-import (
-	"log"
+Display a Notification with Icon
+```Go
+ntf := notify.NewNotification("Test Notification", "Just a test")
+//ntf.AppIcon = "/usr/share/icons/gnome/scalable/devices/network-wireless-symbolic.svg"
+ntf.AppIcon = "network-wireless"
 
-	"github.com/TheCreeper/go-notify"
-)
+if _, err := ntf.Show(); err != nil {
+	return
+}
+```
 
-func main() {
+Display a Notification with a High Priority
+```Go
+ntf := notify.NewNotification("Test Notification", "Just a test")
+ntf.Hints = make(map[string]interface{})
+ntf.Hints[notify.Urgency] = notify.UrgencyCritical
 
-	ntf, err := notify.NewNotification("Test Notification", "This is a test notification")
-	if err != nil {
+if _, err := ntf.Show(); err != nil {
+	return
+}
+```
 
-		log.Fatal(err)
-	}
+Play a Sound with the Notification
+```Go
+ntf := notify.NewNotification("Test Notification", "Just a test")
+ntf.Hints = make(map[string]interface{})
+ntf.Hints[notify.HintSoundFile] = "/usr/share/sounds/freedesktop/stereo/dialog-information.oga"
 
-	if _, err := ntf.Show(); err != nil {
+if _, err := ntf.Show(); err != nil {
+	return
+}
+```
 
-		log.Fatal(err)
-	}
+Close a Notification
+```Go
+if err = notify.CloseNotification(notification_id); err != nil {
+	return
 }
 ```

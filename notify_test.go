@@ -3,10 +3,8 @@ package notify
 import "testing"
 
 func TestGetCapabilities(t *testing.T) {
-
 	c, err := GetCapabilities()
 	if err != nil {
-
 		t.Fatal(err)
 	}
 
@@ -23,10 +21,8 @@ func TestGetCapabilities(t *testing.T) {
 }
 
 func TestGetServerInformation(t *testing.T) {
-
 	info, err := GetServerInformation()
 	if err != nil {
-
 		t.Fatal(err)
 	}
 
@@ -37,21 +33,23 @@ func TestGetServerInformation(t *testing.T) {
 }
 
 func TestNewNotification(t *testing.T) {
+	ntf := NewNotification("Notification Test", "Just a test")
 
-	ntf, err := NewNotification("Test Notification", "This is a test notification")
+	_, err := ntf.Show()
 	if err != nil {
-
 		t.Fatal(err)
 	}
+}
+
+func TestCloseNotification(t *testing.T) {
+	ntf := NewNotification("Notification Test", "Just a test")
 
 	id, err := ntf.Show()
 	if err != nil {
-
 		t.Fatal(err)
 	}
 
-	if err := CloseNotification(id); err != nil {
-
+	if err = CloseNotification(id); err != nil {
 		t.Fatal(err)
 	}
 }
