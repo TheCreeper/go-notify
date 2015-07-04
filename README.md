@@ -7,7 +7,7 @@ Package notify provides an implementation of the [Freedesktop Notifications Spec
 
 ## Examples
 
-Display Simple Notification
+Display a Simple Notification
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 
