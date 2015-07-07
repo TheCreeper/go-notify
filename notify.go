@@ -212,7 +212,7 @@ func NewNotification(summary, body string) Notification {
 }
 
 // Show sends the information in the notification object to the server to be displayed.
-func (n *Notification) Show() (id uint32, err error) {
+func (n Notification) Show() (id uint32, err error) {
 
 	// We need to convert the interface type of the map to dbus.Variant as people
 	// dont want to have to import the dbus package just to make use of the notification
