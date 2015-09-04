@@ -1,5 +1,5 @@
-// Package notify provides an implementation of the Freedesktop Notifications Specification
-// using the DBus API.
+// Package notify provides an implementation of the Freedesktop Notifications
+// Specification using the DBus API.
 package notify
 
 import "github.com/godbus/dbus"
@@ -77,14 +77,16 @@ type Capabilities struct {
 	// Supports markup in the body text.
 	BodyMarkup bool
 
-	// The server will render an animation of all the frames in a given image array.
+	// The server will render an animation of all the frames in a given
+	// image array.
 	IconMulti bool
 
 	// Supports display of exactly 1 frame of any given image array.
 	IconStatic bool
 
-	// The server supports persistence of notifications. Notifications will be
-	// retained until they are acknowledged or removed by the user or recalled by the sender.
+	// The server supports persistence of notifications. Notifications will
+	// be retained until they are acknowledged or removed by the user or
+	// recalled by the sender.
 	Persistence bool
 
 	// The server supports sounds on notifications.
@@ -97,7 +99,8 @@ func GetCapabilities() (c Capabilities, err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object("org.freedesktop.Notifications",
+		"/org/freedesktop/Notifications")
 
 	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0)
 	if call.Err != nil {
@@ -159,14 +162,15 @@ type ServerInformation struct {
 	SpecVersion string
 }
 
-// GetServerInformation returns information about the notification server such as its name
-// and version.
+// GetServerInformation returns information about the notification server such
+// as its name and version.
 func GetServerInformation() (i ServerInformation, err error) {
 	connection, err := dbus.SessionBus()
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object("org.freedesktop.Notifications",
+		"/org/freedesktop/Notifications")
 
 	call := obj.Call("org.freedesktop.Notifications.GetServerInformation", 0)
 	if call.Err != nil {
@@ -180,7 +184,8 @@ func GetServerInformation() (i ServerInformation, err error) {
 }
 
 type Notification struct {
-	// The optional name of the application sending the notification. Can be blank.
+	// The optional name of the application sending the notification.
+	// Can be blank.
 	AppName string
 
 	// The optional notification ID that this notification replaces.
@@ -195,28 +200,31 @@ type Notification struct {
 	// The optional detailed body text.
 	Body string
 
-	// The actions send a request message back to the notification client when invoked.
+	// The actions send a request message back to the notification client
+	// when invoked.
 	Actions []string
 
 	// Hints are a way to provide extra data to a notification server.
 	Hints map[string]interface{}
 
-	// The timeout time in milliseconds since the display of the notification at which
-	// the notification should automatically close.
+	// The timeout time in milliseconds since the display of the
+	// notification at which the notification should automatically close.
 	Timeout int32
 }
 
-// NewNotification creates a new notification object with some basic information.
+// NewNotification creates a new notification object with some basic
+// information.
 func NewNotification(summary, body string) Notification {
 	return Notification{Summary: summary, Body: body, Timeout: ExpiresDefault}
 }
 
-// Show sends the information in the notification object to the server to be displayed.
+// Show sends the information in the notification object to the server to be
+// displayed.
 func (n Notification) Show() (id uint32, err error) {
 
-	// We need to convert the interface type of the map to dbus.Variant as people
-	// dont want to have to import the dbus package just to make use of the notification
-	// hints.
+	// We need to convert the interface type of the map to dbus. Variant as
+	// people dont want to have to import the dbus package just to make use
+	// of the notification hints.
 	hints := map[string]dbus.Variant{}
 	if len(n.Hints) != 0 {
 		for k, v := range n.Hints {
@@ -228,7 +236,8 @@ func (n Notification) Show() (id uint32, err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object("org.freedesktop.Notifications",
+		"/org/freedesktop/Notifications")
 
 	call := obj.Call(
 		"org.freedesktop.Notifications.Notify",
@@ -257,7 +266,8 @@ func CloseNotification(id uint32) (err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object("org.freedesktop.Notifications",
+		"/org/freedesktop/Notifications")
 
 	call := obj.Call("org.freedesktop.Notifications.CloseNotification", 0, id)
 	if call.Err != nil {
