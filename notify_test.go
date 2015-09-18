@@ -34,7 +34,6 @@ func TestGetServerInformation(t *testing.T) {
 
 func TestNewNotification(t *testing.T) {
 	ntf := NewNotification("Notification Test", "Just a test")
-
 	_, err := ntf.Show()
 	if err != nil {
 		t.Fatal(err)
@@ -43,7 +42,6 @@ func TestNewNotification(t *testing.T) {
 
 func TestCloseNotification(t *testing.T) {
 	ntf := NewNotification("Notification Test", "Just a test")
-
 	id, err := ntf.Show()
 	if err != nil {
 		t.Fatal(err)
