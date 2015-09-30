@@ -4,6 +4,16 @@ package notify
 
 import "github.com/godbus/dbus"
 
+//
+const (
+	notifyInterface      = "org.freedesktop.Notifications"
+	notifyObjectPath     = "/org/freedesktop/Notifications"
+	getCapabilities      = "org.freedesktop.Notifications.GetCapabilities"
+	closeNotification    = "org.freedesktop.Notifications.CloseNotification"
+	notifySend           = "org.freedesktop.Notifications.Notify"
+	getServerInformation = "org.freedesktop.Notifications.GetServerInformation"
+)
+
 // Notification expire timeout
 const (
 	ExpiresDefault = -1
@@ -99,7 +109,7 @@ func GetCapabilities() (c Capabilities, err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object(notifyInterface, notifyObjectPath)
 
 	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0)
 	if call.Err != nil {
@@ -168,14 +178,18 @@ func GetServerInformation() (i ServerInformation, err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object(notifyInterface, notifyObjectPath)
 
-	call := obj.Call("org.freedesktop.Notifications.GetServerInformation", 0)
+	call := obj.Call("org.freedesktop.Notifications.GetServerInformation",
+		0)
 	if call.Err != nil {
 		return ServerInformation{}, call.Err
 	}
 
-	if err = call.Store(&i.Name, &i.Vendor, &i.Version, &i.SpecVersion); err != nil {
+	if err = call.Store(&i.Name,
+		&i.Vendor,
+		&i.Version,
+		&i.SpecVersion); err != nil {
 		return
 	}
 	return
@@ -213,28 +227,29 @@ type Notification struct {
 // NewNotification creates a new notification object with some basic
 // information.
 func NewNotification(summary, body string) Notification {
-	return Notification{Summary: summary, Body: body, Timeout: ExpiresDefault}
+	return Notification{
+		Summary: summary,
+		Body:    body,
+		Timeout: ExpiresDefault,
+	}
 }
 
 // Show sends the information in the notification object to the server to be
 // displayed.
 func (n Notification) Show() (id uint32, err error) {
-
-	// We need to convert the interface type of the map to dbus. Variant as
+	// We need to convert the interface type of the map to dbus.Variant as
 	// people dont want to have to import the dbus package just to make use
 	// of the notification hints.
 	hints := map[string]dbus.Variant{}
-	if len(n.Hints) != 0 {
-		for k, v := range n.Hints {
-			hints[k] = dbus.MakeVariant(v)
-		}
+	for k, v := range n.Hints {
+		hints[k] = dbus.MakeVariant(v)
 	}
 
 	connection, err := dbus.SessionBus()
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object(notifyInterface, notifyObjectPath)
 
 	call := obj.Call(
 		"org.freedesktop.Notifications.Notify",
@@ -263,9 +278,11 @@ func CloseNotification(id uint32) (err error) {
 	if err != nil {
 		return
 	}
-	obj := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	obj := connection.Object(notifyInterface, notifyObjectPath)
 
-	call := obj.Call("org.freedesktop.Notifications.CloseNotification", 0, id)
+	call := obj.Call("org.freedesktop.Notifications.CloseNotification",
+		0,
+		id)
 	if call.Err != nil {
 		return call.Err
 	}

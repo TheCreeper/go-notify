@@ -1,5 +1,4 @@
-go-notify
-=====================
+# go-notify
 
 [![go-notify](https://godoc.org/github.com/TheCreeper/go-notify?status.png)](http://godoc.org/github.com/TheCreeper/go-notify)
 
@@ -18,7 +17,6 @@ if _, err := ntf.Show(); err != nil {
 Display a Notification with an Icon. Consult the [Icon Naming Specification](http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html).
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
-//ntf.AppIcon = "/usr/share/icons/gnome/scalable/devices/network-wireless-symbolic.svg"
 ntf.AppIcon = "network-wireless"
 if _, err := ntf.Show(); err != nil {
 	return
@@ -36,9 +34,10 @@ if _, err := ntf.Show(); err != nil {
 
 Play a Sound with the Notification
 ```Go
+snd := "/usr/share/sounds/freedesktop/stereo/dialog-information.oga"
 ntf := notify.NewNotification("Test Notification", "Just a test")
 ntf.Hints = make(map[string]interface{})
-ntf.Hints[notify.HintSoundFile] = "/usr/share/sounds/freedesktop/stereo/dialog-information.oga"
+ntf.Hints[notify.HintSoundFile] = snd
 if _, err := ntf.Show(); err != nil {
 	return
 }
