@@ -1,12 +1,9 @@
 # go-notify
 
-[Notification Specification]: https://developer.gnome.org/notification-spec/
-[Icon Naming Specification]: http://standards.freedesktop.org/icon-naming-spec/
-
 [![GoDoc](https://godoc.org/github.com/TheCreeper/go-notify?status.svg)](https://godoc.org/github.com/TheCreeper/go-notify)
 
 Package notify provides an implementation of the Gnome DBus
-[Notification Specification].
+[Notification Specification](https://developer.gnome.org/notification-spec).
 
 ## Examples
 
@@ -18,7 +15,8 @@ if _, err := ntf.Show(); err != nil {
 }
 ```
 
-Display a Notification with an Icon. Consult the [Icon Naming Specification].
+Display a Notification with an Icon. Consult the
+[Icon Naming Specification](http://standards.freedesktop.org/icon-naming-spec).
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 ntf.AppIcon = "network-wireless"
