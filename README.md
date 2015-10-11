@@ -5,7 +5,7 @@
 [Notification Specification]: https://developer.gnome.org/notification-spec/
 [Icon Naming Specification]: http://standards.freedesktop.org/icon-naming-spec/
 
-[![GoDoc](go-notify-img)](go-notify)
+[![GoDoc]([go-notify-img])]([go-notify])
 
 Package notify provides an implementation of the Gnome DBus
 [Notification Specification].
