@@ -1,11 +1,9 @@
 # go-notify
 
-[go-notify]: https://godoc.org/github.com/TheCreeper/go-notify
-[go-notify-img]: https://godoc.org/github.com/TheCreeper/go-notify?status.svg
 [Notification Specification]: https://developer.gnome.org/notification-spec/
 [Icon Naming Specification]: http://standards.freedesktop.org/icon-naming-spec/
 
-[![GoDoc]([go-notify-img])]([go-notify])
+[![GoDoc](https://godoc.org/github.com/TheCreeper/go-notify?status.svg)](https://godoc.org/github.com/TheCreeper/go-notify)
 
 Package notify provides an implementation of the Gnome DBus
 [Notification Specification].
