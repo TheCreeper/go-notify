@@ -7,8 +7,8 @@
 
 [![go-notify-img][]]([go-notify])
 
-Package notify provides an implementation of the [Notification Specification]
-using the DBus API.
+Package notify provides an implementation of the Gnome DBus
+[Notification Specification].
 
 ## Examples
 
@@ -40,10 +40,9 @@ if _, err := ntf.Show(); err != nil {
 
 Play a Sound with the Notification
 ```Go
-snd := "/usr/share/sounds/freedesktop/stereo/dialog-information.oga"
 ntf := notify.NewNotification("Test Notification", "Just a test")
 ntf.Hints = make(map[string]interface{})
-ntf.Hints[notify.HintSoundFile] = snd
+ntf.Hints[notify.HintSoundFile] = "/home/my-username/sound.oga"
 if _, err := ntf.Show(); err != nil {
 	return
 }

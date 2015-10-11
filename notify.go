@@ -4,14 +4,14 @@ package notify
 
 import "github.com/godbus/dbus"
 
-//
+// Notification object paths and interfaces.
 const (
-	notifyInterface      = "org.freedesktop.Notifications"
-	notifyObjectPath     = "/org/freedesktop/Notifications"
-	getCapabilities      = "org.freedesktop.Notifications.GetCapabilities"
-	closeNotification    = "org.freedesktop.Notifications.CloseNotification"
-	notifySend           = "org.freedesktop.Notifications.Notify"
-	getServerInformation = "org.freedesktop.Notifications.GetServerInformation"
+	objectPath        = "/org/freedesktop/Notifications"
+	interfacePath     = "org.freedesktop.Notifications"
+	getCapabilities   = "org.freedesktop.Notifications.GetCapabilities"
+	closeNotification = "org.freedesktop.Notifications.CloseNotification"
+	notify            = "org.freedesktop.Notifications.Notify"
+	gsInformation     = "org.freedesktop.Notifications.GetServerInformation"
 )
 
 // Notification expire timeout
@@ -68,6 +68,8 @@ const (
 	HintUrgency       = "urgency"
 )
 
+// Capabilities is a struct containing the capabilities of the notification
+// server.
 type Capabilities struct {
 	// Supports using icons instead of text for displaying actions.
 	ActionIcons bool
@@ -105,21 +107,22 @@ type Capabilities struct {
 
 // GetCapabilities returns the capabilities of the notification server.
 func GetCapabilities() (c Capabilities, err error) {
-	connection, err := dbus.SessionBus()
+	conn, err := dbus.SessionBus()
 	if err != nil {
 		return
 	}
-	obj := connection.Object(notifyInterface, notifyObjectPath)
 
-	call := obj.Call("org.freedesktop.Notifications.GetCapabilities", 0)
-	if call.Err != nil {
-		return Capabilities{}, call.Err
+	obj := conn.Object(interfacePath, objectPath)
+	call := obj.Call(getCapabilities, 0)
+	if err = call.Err; err != nil {
+		return
 	}
 
 	s := []string{}
 	if err = call.Store(&s); err != nil {
 		return
 	}
+
 	for _, v := range s {
 		switch v {
 		case "action-icons":
@@ -157,6 +160,8 @@ func GetCapabilities() (c Capabilities, err error) {
 	return
 }
 
+// ServerInformation is a struct containing information about the server such
+// as its name and version.
 type ServerInformation struct {
 	// The name of the notification server daemon
 	Name string
@@ -174,27 +179,23 @@ type ServerInformation struct {
 // GetServerInformation returns information about the notification server such
 // as its name and version.
 func GetServerInformation() (i ServerInformation, err error) {
-	connection, err := dbus.SessionBus()
+	conn, err := dbus.SessionBus()
 	if err != nil {
 		return
 	}
-	obj := connection.Object(notifyInterface, notifyObjectPath)
 
-	call := obj.Call("org.freedesktop.Notifications.GetServerInformation",
-		0)
-	if call.Err != nil {
-		return ServerInformation{}, call.Err
-	}
-
-	if err = call.Store(&i.Name,
-		&i.Vendor,
-		&i.Version,
-		&i.SpecVersion); err != nil {
+	obj := conn.Object(interfacePath, objectPath)
+	call := obj.Call(gsInformation, 0)
+	if err = call.Err; err != nil {
 		return
 	}
+
+	err = call.Store(&i.Name, &i.Vendor, &i.Version, &i.SpecVersion)
 	return
 }
 
+// Notification is a struct which describes the notification to be displayed
+// by the notification server.
 type Notification struct {
 	// The optional name of the application sending the notification.
 	// Can be blank.
@@ -237,6 +238,11 @@ func NewNotification(summary, body string) Notification {
 // Show sends the information in the notification object to the server to be
 // displayed.
 func (n Notification) Show() (id uint32, err error) {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		return
+	}
+
 	// We need to convert the interface type of the map to dbus.Variant as
 	// people dont want to have to import the dbus package just to make use
 	// of the notification hints.
@@ -245,14 +251,9 @@ func (n Notification) Show() (id uint32, err error) {
 		hints[k] = dbus.MakeVariant(v)
 	}
 
-	connection, err := dbus.SessionBus()
-	if err != nil {
-		return
-	}
-	obj := connection.Object(notifyInterface, notifyObjectPath)
-
+	obj := conn.Object(interfacePath, objectPath)
 	call := obj.Call(
-		"org.freedesktop.Notifications.Notify",
+		notify,
 		0,
 		n.AppName,
 		n.ReplacesID,
@@ -262,29 +263,23 @@ func (n Notification) Show() (id uint32, err error) {
 		n.Actions,
 		hints,
 		n.Timeout)
-	if call.Err != nil {
-		return 0, call.Err
-	}
-
-	if err = call.Store(&id); err != nil {
+	if err = call.Err; err != nil {
 		return
 	}
+
+	err = call.Store(&id)
 	return
 }
 
 // CloseNotification closes the notification if it exists using its id.
 func CloseNotification(id uint32) (err error) {
-	connection, err := dbus.SessionBus()
+	conn, err := dbus.SessionBus()
 	if err != nil {
 		return
 	}
-	obj := connection.Object(notifyInterface, notifyObjectPath)
 
-	call := obj.Call("org.freedesktop.Notifications.CloseNotification",
-		0,
-		id)
-	if call.Err != nil {
-		return call.Err
-	}
+	obj := conn.Object(interfacePath, objectPath)
+	call := obj.Call(closeNotification, 0, id)
+	err = call.Err
 	return
 }
