@@ -46,9 +46,9 @@ const (
 
 // Urgency Levels
 const (
-	UrgencyLow      = 0
-	UrgencyNormal   = 1
-	UrgencyCritical = 2
+	UrgencyLow      = byte(0)
+	UrgencyNormal   = byte(1)
+	UrgencyCritical = byte(2)
 )
 
 // Hints

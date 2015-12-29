@@ -50,3 +50,23 @@ func TestCloseNotification(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestUrgencyNotification(t *testing.T) {
+	ntfLow := NewNotification("Urgency Test", "Testing notification urgency low")
+	ntfLow.Hints = make(map[string]interface{})
+
+	ntfLow.Hints[HintUrgency] = UrgencyLow
+	_, err := ntfLow.Show()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ntfCritical := NewNotification("Urgency Test", "Testing notification urgency critical")
+	ntfCritical.Hints = make(map[string]interface{})
+
+	ntfCritical.Hints[HintUrgency] = UrgencyCritical
+	_, err = ntfCritical.Show()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
