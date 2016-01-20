@@ -6,12 +6,16 @@ import "github.com/godbus/dbus"
 
 // Notification object paths and interfaces.
 const (
-	objectPath        = "/org/freedesktop/Notifications"
-	interfacePath     = "org.freedesktop.Notifications"
-	getCapabilities   = "org.freedesktop.Notifications.GetCapabilities"
-	closeNotification = "org.freedesktop.Notifications.CloseNotification"
-	notify            = "org.freedesktop.Notifications.Notify"
-	gsInformation     = "org.freedesktop.Notifications.GetServerInformation"
+	DbusObjectPath               = "/org/freedesktop/Notifications"
+	DbusInterfacePath            = "org.freedesktop.Notifications"
+	SignalNotificationClosed     = "org.freedesktop.Notifications.NotificationClosed"
+	SignalActionInvoked          = "org.freedesktop.Notifications.ActionInvoked"
+	CallGetCapabilities          = "org.freedesktop.Notifications.GetCapabilities"
+	CallCloseNotification        = "org.freedesktop.Notifications.CloseNotification"
+	CallNotify                   = "org.freedesktop.Notifications.Notify"
+	CallGetServerInformation     = "org.freedesktop.Notifications.GetServerInformation"
+	DbusMemberActionInvoked      = "ActionInvoked"
+	DbusMemberNotificationClosed = "NotificationClosed"
 )
 
 // Notification expire timeout
@@ -112,8 +116,8 @@ func GetCapabilities() (c Capabilities, err error) {
 		return
 	}
 
-	obj := conn.Object(interfacePath, objectPath)
-	call := obj.Call(getCapabilities, 0)
+	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
+	call := obj.Call(CallGetCapabilities, 0)
 	if err = call.Err; err != nil {
 		return
 	}
@@ -184,8 +188,8 @@ func GetServerInformation() (i ServerInformation, err error) {
 		return
 	}
 
-	obj := conn.Object(interfacePath, objectPath)
-	call := obj.Call(gsInformation, 0)
+	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
+	call := obj.Call(CallGetServerInformation, 0)
 	if err = call.Err; err != nil {
 		return
 	}
@@ -251,9 +255,9 @@ func (n Notification) Show() (id uint32, err error) {
 		hints[k] = dbus.MakeVariant(v)
 	}
 
-	obj := conn.Object(interfacePath, objectPath)
+	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
 	call := obj.Call(
-		notify,
+		CallNotify,
 		0,
 		n.AppName,
 		n.ReplacesID,
@@ -278,8 +282,8 @@ func CloseNotification(id uint32) (err error) {
 		return
 	}
 
-	obj := conn.Object(interfacePath, objectPath)
-	call := obj.Call(closeNotification, 0, id)
+	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
+	call := obj.Call(CallCloseNotification, 0, id)
 	err = call.Err
 	return
 }
