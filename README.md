@@ -7,7 +7,7 @@ Package notify provides an implementation of the Gnome DBus
 
 ## Examples
 
-Display a Simple Notification
+Display a simple notification.
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 if _, err := ntf.Show(); err != nil {
@@ -15,7 +15,7 @@ if _, err := ntf.Show(); err != nil {
 }
 ```
 
-Display a Notification with an Icon. Consult the
+Display a notification with an icon. Consult the
 [Icon Naming Specification](http://standards.freedesktop.org/icon-naming-spec).
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
@@ -25,7 +25,7 @@ if _, err := ntf.Show(); err != nil {
 }
 ```
 
-Display a Notification that never Expires
+Display a notification that never expires.
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 ntf.Timeout = notify.ExpiresNever
@@ -34,7 +34,7 @@ if _, err := ntf.Show(); err != nil {
 }
 ```
 
-Play a Sound with the Notification
+Play a sound with the notification.
 ```Go
 ntf := notify.NewNotification("Test Notification", "Just a test")
 ntf.Hints = make(map[string]interface{})
