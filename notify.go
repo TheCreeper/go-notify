@@ -18,7 +18,7 @@ const (
 	DbusMemberNotificationClosed = "NotificationClosed"
 )
 
-// Notification expire timeout
+// Notification expire timeout.
 const (
 	ExpiresDefault = -1
 	ExpiresNever   = 0
