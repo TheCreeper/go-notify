@@ -1,5 +1,5 @@
-// Package notify provides an implementation of the Freedesktop Notifications
-// Specification using the DBus API.
+// Package notify provides an implementation of the Gnome DBus notifications
+// specification.
 package notify
 
 import "github.com/godbus/dbus"
