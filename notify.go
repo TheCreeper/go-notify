@@ -2,7 +2,11 @@
 // specification.
 package notify
 
-import "github.com/godbus/dbus"
+import (
+	"context"
+
+	"github.com/godbus/dbus"
+)
 
 // Notification object paths and interfaces.
 const (
@@ -286,4 +290,95 @@ func CloseNotification(id uint32) (err error) {
 	call := obj.Call(CallCloseNotification, 0, id)
 	err = call.Err
 	return
+}
+
+// CloseReason is the reason why the notification was closed.
+type CloseReason uint32
+
+func (x CloseReason) String() string {
+	switch x {
+	case NotClosed:
+		return "not closed"
+	case CloseReasonExpired:
+		return "expired"
+	case CloseReasonUserDismissed:
+		return "user dismissed"
+	case CloseReasonCloseCalled:
+		return "close called"
+	default:
+		return "undefined"
+	}
+}
+
+// https://developer.gnome.org/notification-spec/#signals
+const (
+	NotClosed                CloseReason = 0
+	CloseReasonExpired       CloseReason = 1
+	CloseReasonUserDismissed CloseReason = 2
+	CloseReasonCloseCalled   CloseReason = 3
+	CloseReasonUndefined     CloseReason = 4
+)
+
+type Signal struct {
+	Name        string
+	ID          uint32
+	ActionKey   string
+	CloseReason CloseReason
+}
+
+// SignalNotify sends notification signals to the channel, such as close or action.
+// Note that you can receive other signals, check the ID.
+// Does not return until the context is done.
+// Do not close the channel until after this function returns.
+func SignalNotify(ctx context.Context, ch chan<- Signal) error {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		return err
+	}
+	call := conn.BusObject().Call(
+		"org.freedesktop.DBus.AddMatch",
+		0,
+		"type='signal',path='"+DbusObjectPath+"',interface='"+DbusInterfacePath+"'")
+	if call.Err != nil {
+		return call.Err
+	}
+	chinput := make(chan *dbus.Signal)
+	conn.Signal(chinput)
+	defer func() {
+		conn.BusObject().Call(
+			"org.freedesktop.DBus.RemoveMatch",
+			0,
+			"type='signal',path='"+DbusObjectPath+"',interface='"+DbusInterfacePath+"'")
+		conn.RemoveSignal(chinput)
+		close(chinput)
+	}()
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case dsig := <-chinput:
+			var sig Signal
+			switch dsig.Name {
+			case SignalNotificationClosed:
+				sig = Signal{
+					Name:        dsig.Name,
+					ID:          dsig.Body[0].(uint32),
+					CloseReason: CloseReason(dsig.Body[1].(uint32)),
+				}
+			case SignalActionInvoked:
+				sig = Signal{
+					Name:      dsig.Name,
+					ID:        dsig.Body[0].(uint32),
+					ActionKey: dsig.Body[1].(string),
+				}
+			default:
+				sig = Signal{Name: dsig.Name}
+			}
+			select {
+			case ch <- sig:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+	}
 }

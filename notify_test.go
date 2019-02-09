@@ -1,6 +1,12 @@
 package notify
 
-import "testing"
+import (
+	"context"
+	"log"
+	"sync"
+	"testing"
+	"time"
+)
 
 func TestGetCapabilities(t *testing.T) {
 	c, err := GetCapabilities()
@@ -69,4 +75,49 @@ func TestUrgencyNotification(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestSignalNotify(t *testing.T) {
+	msg := "Just a test\n\n<b>you can click things!</b>\n\n(use the -short test switch to skip this)"
+	ntf := NewNotification("Notification Test", msg)
+	if testing.Short() {
+		ntf.Timeout = 500
+		log.Print("Using short timeout because of -short")
+	} else {
+		ntf.Timeout = 5000
+		log.Printf("Using %vms timeout, click the notification or use -short to go faster", ntf.Timeout)
+	}
+	ntf.Actions = []string{"my-something", "Something", "default", "Default"}
+	id, err := ntf.Show()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
+	defer cancel()
+
+	ch := make(chan Signal, 2)
+	wg := &sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for sig := range ch {
+			log.Printf("Signal: %+v", sig)
+			if sig.CloseReason == NotClosed {
+				CloseNotification(id)
+			} else {
+				cancel()
+				break
+			}
+		}
+	}()
+
+	err = SignalNotify(ctx, ch)
+	if err != nil && err != context.Canceled {
+		t.Fatal(err)
+	}
+
+	close(ch)
+	wg.Wait()
 }
