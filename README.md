@@ -1,6 +1,6 @@
 # go-notify
 
-[![PkgGoDev](https://pkg.go.dev/badge/TheCreeper/go-notify)](https://pkg.go.dev/TheCreeper/go-notify)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/TheCreeper/go-notify)](https://pkg.go.dev/github.com/TheCreeper/go-notify)
 
 Package notify provides an implementation of the Gnome DBus
 [Notifications Specification](https://developer.gnome.org/notification-spec).
