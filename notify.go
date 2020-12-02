@@ -2,7 +2,7 @@
 // specification.
 package notify
 
-import "github.com/godbus/dbus"
+import "github.com/godbus/dbus/v5"
 
 // Notification object paths and interfaces.
 const (
