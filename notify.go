@@ -2,7 +2,10 @@
 // specification.
 package notify
 
-import "github.com/godbus/dbus/v5"
+import (
+	"context"
+	"github.com/godbus/dbus/v5"
+)
 
 // Notification object paths and interfaces.
 const (
@@ -116,14 +119,15 @@ func GetCapabilities() (c Capabilities, err error) {
 		return
 	}
 
-	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
-	call := obj.Call(CallGetCapabilities, 0)
-	if err = call.Err; err != nil {
-		return
-	}
-
-	s := []string{}
-	if err = call.Store(&s); err != nil {
+	var d = make(chan *dbus.Call, 1)
+	var o = conn.Object(DbusInterfacePath, DbusObjectPath)
+	var s = make([]string, 0)
+	o.GoWithContext(context.Background(),
+		CallGetCapabilities,
+		0,
+		d)
+	err = (<-d).Store(&s)
+	if err != nil {
 		return
 	}
 
@@ -187,14 +191,16 @@ func GetServerInformation() (i ServerInformation, err error) {
 	if err != nil {
 		return
 	}
-
-	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
-	call := obj.Call(CallGetServerInformation, 0)
-	if err = call.Err; err != nil {
-		return
-	}
-
-	err = call.Store(&i.Name, &i.Vendor, &i.Version, &i.SpecVersion)
+	var d = make(chan *dbus.Call, 1)
+	var o = conn.Object(DbusInterfacePath, DbusObjectPath)
+	o.GoWithContext(context.Background(),
+		CallGetServerInformation,
+		0,
+		d)
+	err = (<-d).Store(&i.Name,
+		&i.Vendor,
+		&i.Version,
+		&i.SpecVersion)
 	return
 }
 
@@ -255,10 +261,12 @@ func (n Notification) Show() (id uint32, err error) {
 		hints[k] = dbus.MakeVariant(v)
 	}
 
-	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
-	call := obj.Call(
+	var d = make(chan *dbus.Call, 1)
+	var o = conn.Object(DbusInterfacePath, DbusObjectPath)
+	o.GoWithContext(context.Background(),
 		CallNotify,
 		0,
+		d,
 		n.AppName,
 		n.ReplacesID,
 		n.AppIcon,
@@ -267,11 +275,7 @@ func (n Notification) Show() (id uint32, err error) {
 		n.Actions,
 		hints,
 		n.Timeout)
-	if err = call.Err; err != nil {
-		return
-	}
-
-	err = call.Store(&id)
+	err = (<-d).Store(&id)
 	return
 }
 
@@ -281,9 +285,13 @@ func CloseNotification(id uint32) (err error) {
 	if err != nil {
 		return
 	}
-
-	obj := conn.Object(DbusInterfacePath, DbusObjectPath)
-	call := obj.Call(CallCloseNotification, 0, id)
-	err = call.Err
+	var d = make(chan *dbus.Call, 1)
+	var o = conn.Object(DbusInterfacePath, DbusObjectPath)
+	o.GoWithContext(context.Background(),
+		CallCloseNotification,
+		0,
+		d,
+		id)
+	err = (<-d).Err
 	return
 }
