@@ -249,7 +249,7 @@ func NewNotification(summary, body string) Notification {
 
 // Show sends the information in the notification object to the server to be
 // displayed.
-func (n Notification) Show() (id uint32, err error) {
+func (x *Notification) Show() (id uint32, err error) {
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		return
@@ -258,8 +258,8 @@ func (n Notification) Show() (id uint32, err error) {
 	// We need to convert the interface type of the map to dbus.Variant as
 	// people dont want to have to import the dbus package just to make use
 	// of the notification hints.
-	for k, v := range n.Hints {
-		n.hints[k] = dbus.MakeVariant(v)
+	for k, v := range x.Hints {
+		x.hints[k] = dbus.MakeVariant(v)
 	}
 
 	var d = make(chan *dbus.Call, 1)
@@ -268,14 +268,14 @@ func (n Notification) Show() (id uint32, err error) {
 		CallNotify,
 		0,
 		d,
-		n.AppName,
-		n.ReplacesID,
-		n.AppIcon,
-		n.Summary,
-		n.Body,
-		n.Actions,
-		n.hints,
-		n.Timeout)
+		x.AppName,
+		x.ReplacesID,
+		x.AppIcon,
+		x.Summary,
+		x.Body,
+		x.Actions,
+		x.hints,
+		x.Timeout)
 	err = (<-d).Store(&id)
 	return
 }
