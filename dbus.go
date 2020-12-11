@@ -294,7 +294,7 @@ type _ImageData struct {
 type ImageError struct{}
 
 func (x ImageError) Error() string {
-	return "Given image.Image was not of type image.RGBA"
+	return "Given image.Image was not of type *image.RGBA"
 }
 
 func (x *Notification) SetImage(img image.Image) (err error) {
