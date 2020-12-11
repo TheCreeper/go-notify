@@ -1,6 +1,8 @@
 package notify
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetCapabilities(t *testing.T) {
 	c, err := GetCapabilities()
@@ -29,7 +31,7 @@ func TestGetServerInformation(t *testing.T) {
 	t.Logf("Server Name: %s\n", info.Name)
 	t.Logf("Server Spec Version: %s\n", info.SpecVersion)
 	t.Logf("Server Vendor: %s\n", info.Vendor)
-	t.Logf("Sserver Version: %s\n", info.Version)
+	t.Logf("Server Version: %s\n", info.Version)
 }
 
 func TestNewNotification(t *testing.T) {
