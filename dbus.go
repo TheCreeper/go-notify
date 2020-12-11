@@ -3,6 +3,7 @@ package notify
 import (
 	"context"
 	"github.com/godbus/dbus/v5"
+	"image"
 )
 
 // Notification object paths and interfaces.
@@ -231,15 +232,18 @@ type Notification struct {
 	// The timeout time in milliseconds since the display of the
 	// notification at which the notification should automatically close.
 	Timeout int32
+
+	hints map[string]dbus.Variant
 }
 
 // NewNotification creates a new notification object with some basic
 // information.
 func NewNotification(summary, body string) Notification {
 	return Notification{
-		Summary: summary,
 		Body:    body,
+		Summary: summary,
 		Timeout: ExpiresDefault,
+		hints:   make(map[string]dbus.Variant),
 	}
 }
 
@@ -254,9 +258,8 @@ func (n Notification) Show() (id uint32, err error) {
 	// We need to convert the interface type of the map to dbus.Variant as
 	// people dont want to have to import the dbus package just to make use
 	// of the notification hints.
-	hints := map[string]dbus.Variant{}
 	for k, v := range n.Hints {
-		hints[k] = dbus.MakeVariant(v)
+		n.hints[k] = dbus.MakeVariant(v)
 	}
 
 	var d = make(chan *dbus.Call, 1)
@@ -271,9 +274,45 @@ func (n Notification) Show() (id uint32, err error) {
 		n.Summary,
 		n.Body,
 		n.Actions,
-		hints,
+		n.hints,
 		n.Timeout)
 	err = (<-d).Store(&id)
+	return
+}
+
+// _ImageData needs to resemble the (iiibiiay) signature.
+type _ImageData struct {
+	/*0*/ Width int
+	/*1*/ Height int
+	/*2*/ RowStride int
+	/*3*/ HasAlpha bool
+	/*4*/ BitsPerSample int
+	/*5*/ Samples int
+	/*6*/ Image []byte
+}
+
+type ImageError struct{}
+
+func (x ImageError) Error() string {
+	return "Given image.Image was not of type image.RGBA"
+}
+
+func (x *Notification) SetImage(img image.Image) (err error) {
+	if p, ok := img.(*image.RGBA); ok {
+		var r = p.Bounds()
+		var d = _ImageData{
+			r.Max.X, // Width
+			r.Max.Y, // Height
+			p.Stride,
+			true,
+			8,
+			4,
+			p.Pix,
+		}
+		x.hints["image-data"] = dbus.MakeVariant(d)
+		return
+	}
+	err = ImageError{}
 	return
 }
 
