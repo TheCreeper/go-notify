@@ -297,6 +297,10 @@ func (x ImageError) Error() string {
 	return "Given image.Image was not of type *image.RGBA"
 }
 
+// SetImage sets the image in the notification from an image.Image
+// interface which must have an underlying type of *image.RGBA.
+// Only the RGBA color space is allowed as only that is supported
+// by the gdk-pixbuf library.
 func (x *Notification) SetImage(img image.Image) (err error) {
 	if p, ok := img.(*image.RGBA); ok {
 		var r = p.Bounds()
